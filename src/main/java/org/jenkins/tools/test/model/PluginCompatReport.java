@@ -28,7 +28,6 @@ package org.jenkins.tools.test.model;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.Xpp3DomDriver;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.util.XStream2;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -180,8 +179,8 @@ public class PluginCompatReport {
         return report;
     }
 
-    private static XStream2 createXStream(){
-        XStream2 xstream = new XStream2(new Xpp3DomDriver());
+    private static XStream createXStream(){
+        XStream xstream = new XStream(new Xpp3DomDriver());
         xstream.setMode(XStream.NO_REFERENCES);
         xstream.alias("pluginInfos", PluginInfos.class);
         xstream.alias("coord", MavenCoordinates.class);
