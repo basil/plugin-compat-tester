@@ -1,6 +1,7 @@
 package org.jenkins.tools.test.model.hook;
 
 import java.io.File;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -53,8 +54,7 @@ public class PluginCompatTesterHooks {
     }
 
     public PluginCompatTesterHooks(
-            List<String> extraPrefixes, List<File> externalJars, List<String> excludeHooks)
-            throws MalformedURLException {
+            List<String> extraPrefixes, List<File> externalJars, List<String> excludeHooks) {
         setupPrefixes(extraPrefixes);
         setupExternalClassLoaders(externalJars);
         setupHooksByType();
@@ -75,13 +75,17 @@ public class PluginCompatTesterHooks {
         }
     }
 
-    private void setupExternalClassLoaders(List<File> externalJars) throws MalformedURLException {
+    private void setupExternalClassLoaders(List<File> externalJars) {
         if (externalJars == null) {
             return;
         }
         List<URL> urls = new ArrayList<>();
         for (File jar : externalJars) {
-            urls.add(jar.toURI().toURL());
+            try {
+                urls.add(jar.toURI().toURL());
+            } catch (MalformedURLException e) {
+                throw new UncheckedIOException(e);
+            }
         }
         classLoader = new URLClassLoader(urls.toArray(new URL[0]), classLoader);
     }

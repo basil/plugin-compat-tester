@@ -3,13 +3,13 @@ package org.jenkins.tools.test.hook;
 import hudson.model.UpdateSite;
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkins.tools.test.PluginCompatTester;
+import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
@@ -98,7 +98,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             String scmTag,
             String url,
             String fallbackGitHubOrganization)
-            throws IOException {
+            throws IOException, PluginSourcesUnavailableException {
 
         List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(url);
@@ -108,7 +108,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                             connectionURLs, url, fallbackGitHubOrganization);
         }
 
-        IOException lastException = null;
+        PluginSourcesUnavailableException lastException = null;
         for (String connectionURL : connectionURLs) {
             if (connectionURL != null) {
                 // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
@@ -117,7 +117,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             try {
                 PluginCompatTester.clone(connectionURL, scmTag, parentPath);
                 break;
-            } catch (IOException e) {
+            } catch (PluginSourcesUnavailableException e) {
                 if (lastException != null) {
                     e.addSuppressed(lastException);
                 }
@@ -126,7 +126,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
         }
 
         if (lastException != null) {
-            throw new UncheckedIOException(lastException);
+            throw lastException;
         }
     }
 
