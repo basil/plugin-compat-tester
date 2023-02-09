@@ -309,7 +309,7 @@ public class PluginCompatTester {
                         cloneFromScm(
                                 pomData.getConnectionUrl(),
                                 config.getFallbackGitHubOrganization(),
-                                getScmTag(pomData, plugin.name, plugin.version),
+                                pomData.getScmTag(),
                                 pluginCheckoutDir);
                     }
                 } else {
@@ -335,7 +335,7 @@ public class PluginCompatTester {
                 cloneFromScm(
                         pomData.getConnectionUrl(),
                         config.getFallbackGitHubOrganization(),
-                        getScmTag(pomData, plugin.name, plugin.version),
+                        pomData.getScmTag(),
                         pluginCheckoutDir);
             }
         } else {
@@ -579,18 +579,6 @@ public class PluginCompatTester {
             throw new PluginSourcesUnavailableException(
                     "git checkout FETCH_HEAD was interrupted", e);
         }
-    }
-
-    public static String getScmTag(PomData pomData, String name, String version) {
-        String scmTag;
-        if (pomData.getScmTag() != null) {
-            scmTag = pomData.getScmTag();
-            LOGGER.log(Level.INFO, "Using SCM tag {0} from POM", scmTag);
-        } else {
-            scmTag = name + "-" + version;
-            LOGGER.log(Level.INFO, "POM did not provide an SCM tag; inferring tag {0}", scmTag);
-        }
-        return scmTag;
     }
 
     public static List<String> getFallbackConnectionURL(

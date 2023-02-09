@@ -31,7 +31,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 config.getLocalCheckoutDir() == null || !config.getLocalCheckoutDir().exists();
 
         if (shouldExecuteHook) {
-            LOGGER.log(Level.INFO, "Executing hook for {0}", getParentProjectName());
+            LOGGER.log(Level.INFO, "Executing hook for {0}", currentPlugin.name);
             // Determine if we need to run the download; only run for first identified plugin in the
             // series
             if (firstRun) {
@@ -45,10 +45,9 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 pomData = (PomData) moreInfo.get("pomData");
                 // Like the call in PluginCompatTester#runHooks but with subdirectories trimmed:
                 PluginCompatTester.cloneFromScm(
-                        getUrl(),
+                        pomData.getConnectionUrl(),
                         config.getFallbackGitHubOrganization(),
-                        PluginCompatTester.getScmTag(
-                                pomData, getParentProjectName(), currentPlugin.version),
+                        pomData.getScmTag(),
                         parentPath);
             }
 
@@ -79,10 +78,6 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
         return moreInfo;
     }
 
-    public String getUrl() {
-        return pomData.getConnectionUrl().replaceFirst("^(.+github[.]com/[^/]+/[^/]+)/.+", "$1");
-    }
-
     protected void configureLocalCheckOut(
             UpdateSite.Plugin currentPlugin, File localCheckoutDir, Map<String, Object> moreInfo) {
         // Do nothing to keep compatibility with pre-existing Hooks
@@ -97,14 +92,6 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
      * of the plugin's Git repository.
      */
     protected abstract String getParentFolder();
-
-    /**
-     * Return the prefix to the SCM tag (usually the artifact ID of the base module). This will be
-     * used to form the checkout tag with the format {@code parentProjectName-version} in the
-     * (highly unlikely, and impossible for incrementalified plugins) event that the SCM tag is
-     * missing from the plugin's POM.
-     */
-    protected abstract String getParentProjectName();
 
     /**
      * Returns the plugin folder name. By default it will be the plugin name, but it can be

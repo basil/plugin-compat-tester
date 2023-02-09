@@ -46,7 +46,7 @@ public class PluginRemotingTest {
     }
 
     @Test
-    public void noScm() throws Exception {
+    public void parent() throws Exception {
         File pomFile = new File(getClass().getResource("scm/pom.xml").toURI());
         PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
         PomData pomData = pluginRemoting.retrievePomData();
@@ -56,7 +56,9 @@ public class PluginRemotingTest {
         assertThat(pomData.groupId, nullValue());
         assertThat(pomData.artifactId, is("example"));
         assertThat(pomData.getPackaging(), is("hpi"));
-        assertThat(pomData.getConnectionUrl(), nullValue());
-        assertThat(pomData.getScmTag(), nullValue());
+        assertThat(
+                pomData.getConnectionUrl(),
+                is("scm:git:https://jenkins.example.com/example-plugin.git"));
+        assertThat(pomData.getScmTag(), is("example-4.1"));
     }
 }
